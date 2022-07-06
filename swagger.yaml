@@ -16,7 +16,7 @@ externalDocs:
   url: http://swagger.io
 servers:
 - url: http://localhost/v2
-- url: http://petstore.swagger.io/v2
+- url: https://petstore.swagger.io/v2
 tags:
 - name: pet
   description: Everything about your Pets
@@ -48,15 +48,34 @@ paths:
               $ref: '#/components/schemas/Pet'
         required: true
       responses:
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Pet not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetApiResponseSuccess'
+              example:
+                code: 200
+                message: "Record updated sucessfully"
+                data:
+                    id: 9223372036854040000
+        '400':
+          description: Bad request. User ID must be an integer and larger than 0.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseError'
+              examples:       # Multiple examples
+                name:         # Distinct name
+                  value:
+                    code: 400
+                    massage: Bad request. Pet name is requried
+                  summary: name is requried
+                photoUrls:
+                  value:
+                    code: 400
+                    massage: Bad request. Pet photoUrls is requried
+                  summary: photoUrls is requried
       security:
       - petstore_auth:
         - write:pets
@@ -73,6 +92,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               $ref: '#/components/schemas/Pet'
           application/xml:
             schema:
@@ -84,15 +104,49 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/addPet200'
+                $ref: '#/components/schemas/PetApiResponseSuccess'
+              example:
+                code: 200
+                message: "Record created sucessfully"
+                data:
+                    id: 9223372036854040000
         '400':
           description: Bad request. User ID must be an integer and larger than 0.
-        '401':
-          description: Authorization information is missing or invalid.
-        '404':
-          description: A user with the specified ID was not found.
-        '5XX':
-          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseError'
+              examples:       # Multiple examples
+                name:         # Distinct name
+                  value:
+                    code: 400
+                    massage: Bad request. Pet name is requried
+                  summary: name is requried
+                photoUrls:
+                  value:
+                    code: 400
+                    massage: Bad request. Pet photoUrls is requried
+                  summary: photoUrls is requried
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ApiResponseError'
+              examples:       # Multiple examples
+                name:         # Distinct name
+                  value:
+                    code: 400
+                    massage: Bad request. Pet name is requried
+                  summary: name is requried
+                photoUrls:
+                  value:
+                    code: 400
+                    massage: Bad request. Pet photoUrls is requried
+                  summary: photoUrls is requried
+        # '401':
+        #   description: Authorization information is missing or invalid.
+        # '404':
+        #   description: A user with the specified ID was not found.
+        # '5XX':
+        #   description: Unexpected error.
       security:
       - petstore_auth:
         - write:pets
@@ -715,35 +769,40 @@ components:
           - sold
       xml:
         name: Pet
-    addPet200:
+
+    Data:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/Stauts"
-        data:
-          type: array
+        id:
+          type: integer
           format: int64
-          example: 9223372000001090000
-        massage:
+    PetApiResponseSuccess:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
           type: string
-          example: "Successful response"
+        data:
+          $ref: '#/components/schemas/Data'
+    ApiResponseError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
     ApiResponse:
       type: object
       properties:
         code:
           type: integer
           format: int32
-        type:
-          type: string
         message:
           type: string
-    Stauts200:
-      properties:
-        code:
-      - satus
-      - massage
-      type: integer
-      example: 200
+
   securitySchemes:
     petstore_auth:
       type: oauth2
